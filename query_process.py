@@ -49,9 +49,19 @@ class QueryProcess:
             for line in fp:
                 record = json.loads(line)
                 thesaurus[record['term']] = record['syns']
-        # result = list(thesaurus.items())[:100]
-        # print(result)
         return thesaurus
+
+    def expandQueries(self: str, thesaurus: dict):
+        # Representation for the queries called 'querySyns'
+        querySyns = {}
+        terms = self.split()
+        # Iterate through each term and add synonyms to querySyns
+
+        for term in terms:
+            synonyms = thesaurus.get(term, [])
+            # Add the term itself to the list of synonyms for completeness
+            querySyns[term] = [term] + synonyms
+        return querySyns
 
     def search(self, query: str, number_of_results: int) -> str:
         if self.stopwords is None:
