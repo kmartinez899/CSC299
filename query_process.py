@@ -51,10 +51,10 @@ class QueryProcess:
                 thesaurus[record['term']] = record['syns']
         return thesaurus
 
-    def expandQueries(self: str, thesaurus: dict):
+    def expandQueries(self, query: str, thesaurus: dict):
         # Representation for the queries called 'querySyns'
         querySyns = {}
-        terms = self.split()
+        terms = preprocess_query(query)
         # Iterate through each term and add synonyms to querySyns
 
         for term in terms:
