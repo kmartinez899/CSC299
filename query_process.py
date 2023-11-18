@@ -63,11 +63,11 @@ class QueryProcess:
             querySyns[term] = [term] + synonyms
         return querySyns
 
-    def search(self, query: str, number_of_results: int) -> str:
+    def search(self, query: str, thesaurus: dict, number_of_results: int) -> str:
         if self.stopwords is None:
-            processed_query = preprocess_query(query)
+            processed_query = self.expandQueries(query, thesaurus)  # use expand queries
         else:
             processed_query = [term for term in preprocess_query(query)
                                if term not in self.stopwords]
         results = self.index.search(processed_query, number_of_results)
-        return self.output_formatter.format_out(results, self.document_store, processed_query)
+        return self.output_formatter.format_out(results, self.document_store)
