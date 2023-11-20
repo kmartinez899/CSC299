@@ -12,7 +12,7 @@ def preprocess_query(query_str: str) -> list[str]:
 
 
 class FullDocumentsOutputFormatter:
-    def format_out(self, results: list[str], document_store: DocumentStore, unused_processed_query):
+    def format_out(self, results: list[str], document_store: DocumentStore):
         output_string = ''
         for doc_id in results:
             doc = document_store.get_by_doc_id(doc_id)
@@ -43,7 +43,6 @@ class QueryProcess:
 
     # returns a dictionary of the terms along with their synonyms in a dictionary
     def read(self: str):
-        # a dictionary that holds a term as a key and its synonyms as its values form the file
         thesaurus = dict()
         with open(self) as fp:
             for line in fp:
@@ -51,7 +50,7 @@ class QueryProcess:
                 thesaurus[record['term']] = record['syns']
         return thesaurus
 
-    def expandQueries(self, query: str, thesaurus: dict):
+    def expandQueries(self, query: str, thesaurus: dict) -> dict:
         # Representation for the queries called 'querySyns'
         querySyns = {}
         terms = preprocess_query(query)
@@ -65,9 +64,12 @@ class QueryProcess:
 
     def search(self, query: str, thesaurus: dict, number_of_results: int) -> str:
         if self.stopwords is None:
-            processed_query = self.expandQueries(query, thesaurus)  # use expand queries
+            # we pass a list of terms from the query
+            processed_query = [term for term in self.expandQueries(query, thesaurus)]
         else:
-            processed_query = [term for term in preprocess_query(query)
+            # or we pass a list of synonyms from a query term
+            processed_query = [syns for term, syns in self.expandQueries(query, thesaurus).items()
                                if term not in self.stopwords]
         results = self.index.search(processed_query, number_of_results)
         return self.output_formatter.format_out(results, self.document_store)
+
